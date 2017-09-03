@@ -1,6 +1,5 @@
 package de.mc.security.config
 
-import com.yubico.u2f.U2F
 import de.mc.security.persistence.IRequestStorage
 import de.mc.security.persistence.InMemoryRequestStorage
 import de.mc.security.persistence.InMemoryUserDetailsService

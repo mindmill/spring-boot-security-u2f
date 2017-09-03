@@ -18,10 +18,10 @@ package de.mc.security.controller
 import com.yubico.u2f.U2F
 import com.yubico.u2f.data.DeviceRegistration
 import com.yubico.u2f.data.messages.RegisterResponse
+import de.mc.security.getLogger
 import de.mc.security.persistence.IRequestStorage
 import de.mc.security.persistence.InMemoryUserDetailsService
 import de.mc.security.persistence.User
-import de.mc.security.util.getLogger
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.userdetails.UsernameNotFoundException

@@ -17,8 +17,7 @@ package de.mc.security.persistence
 
 import com.yubico.u2f.data.messages.RegisterRequestData
 import com.yubico.u2f.data.messages.SignRequestData
-import de.mc.security.util.getLogger
-import org.springframework.stereotype.Component
+import de.mc.security.getLogger
 import java.util.concurrent.ConcurrentHashMap
 
 /**

@@ -2,9 +2,9 @@ package de.mc.security.config
 
 import com.yubico.u2f.U2F
 import com.yubico.u2f.data.messages.SignResponse
+import de.mc.security.getLogger
 import de.mc.security.persistence.IRequestStorage
 import de.mc.security.persistence.InMemoryUserDetailsService
-import de.mc.security.util.getLogger
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider

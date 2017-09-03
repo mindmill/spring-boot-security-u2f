@@ -24,6 +24,7 @@ class WebConfig : WebMvcConfigurerAdapter() {
     override fun addViewControllers(registry: ViewControllerRegistry) {
         registry.addViewController("/").setViewName("/home");
         registry.addViewController("/home").setViewName("/home");
+        registry.addViewController("/signup.html").setViewName("/signup");
         registry.addViewController("/login").setViewName("login");
     }
 }
