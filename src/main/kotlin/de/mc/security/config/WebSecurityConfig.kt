@@ -58,7 +58,4 @@ class WebSecurityConfig : WebSecurityConfigurerAdapter() {
 
     @Bean
     override fun userDetailsService(): UserDetailsService = InMemoryUserDetailsService()
-
-    @Bean
-    fun u2f() = U2F()
 }

@@ -35,10 +35,10 @@ import org.springframework.web.bind.annotation.RequestParam
  */
 @Controller
 class U2fController @Autowired constructor(val requestStorage: IRequestStorage,
-                                           val userDetailsService: InMemoryUserDetailsService,
-                                           val u2f: U2F) {
+                                           val userDetailsService: InMemoryUserDetailsService) {
 
     private val log = getLogger()
+    private val u2f = U2F()
     internal val SERVER_ADDRESS = "https://localhost:8443"
 
     @RequestMapping("/u2f/register/challenge", method = arrayOf(RequestMethod.POST))
