@@ -24,7 +24,6 @@ import java.util.concurrent.ConcurrentHashMap
 /**
  * @author Rob Winch
  */
-@Component
 class InMemoryRequestStorage : IRequestStorage {
 
     private val log = getLogger()

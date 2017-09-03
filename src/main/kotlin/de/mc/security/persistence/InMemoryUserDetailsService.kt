@@ -1,5 +1,6 @@
 package de.mc.security.persistence
 
+import com.yubico.u2f.data.DeviceRegistration
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
@@ -26,9 +27,13 @@ class InMemoryUserDetailsService : UserDetailsService {
     fun addUser(user: User) {
         userMap.put(user.username, user)
     }
+
+    fun getUser(username: String): User{
+        return loadUserByUsername(username) as User
+    }
 }
 
-data class User(val name: String, val pw: String) : UserDetails {
+data class User(val name: String, val pw: String, val deviceRegistrations: MutableList<DeviceRegistration> = mutableListOf()) : UserDetails {
     override fun getAuthorities(): MutableCollection<out GrantedAuthority> = mutableListOf(SimpleGrantedAuthority("ROLE_user"))
     override fun isEnabled() = true
     override fun getUsername() = name

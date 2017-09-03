@@ -18,76 +18,83 @@ package de.mc.security.controller
 import com.yubico.u2f.U2F
 import com.yubico.u2f.data.DeviceRegistration
 import com.yubico.u2f.data.messages.RegisterResponse
-import com.yubico.u2f.data.messages.SignResponse
-import de.mc.security.persistence.IDeviceRegistration
 import de.mc.security.persistence.IRequestStorage
+import de.mc.security.persistence.InMemoryUserDetailsService
+import de.mc.security.persistence.User
+import de.mc.security.util.getLogger
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.security.authentication.BadCredentialsException
+import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RequestParam
-import java.security.Principal
 
 /**
  * @author Rob Winch
  */
 @Controller
 class U2fController @Autowired constructor(val requestStorage: IRequestStorage,
-                                           val devices: IDeviceRegistration,
+                                           val userDetailsService: InMemoryUserDetailsService,
                                            val u2f: U2F) {
 
+    private val log = getLogger()
     internal val SERVER_ADDRESS = "https://localhost:8443"
 
-    @RequestMapping("/u2f/register")
-    fun registerForm(principal: Principal, model: MutableMap<String, Any>): String {
-        val username = principal.name
+    @RequestMapping("/u2f/register/challenge", method = arrayOf(RequestMethod.POST))
+    fun registerForm(@RequestParam("username") username: String, @RequestParam("password") password: String, model: MutableMap<String, Any>): String {
+        try {
+            val user = userDetailsService.getUser(username)
+            if (user.password != password) throw BadCredentialsException("Password does not match")
+        } catch (e: UsernameNotFoundException) {
+            userDetailsService.addUser(User(username, password))
+        }
         val registerRequestData = u2f.startRegistration(SERVER_ADDRESS, getRegistrations(username))
         requestStorage.save(registerRequestData)
+        log.info("challenge start for $username")
+        model.put("username", username)
+        model.put("password", password)
         model.put("data", registerRequestData.toJson())
-        return "u2f/register"
+        return "/signup"
     }
 
 
-    @RequestMapping(value = "/u2f/register", method = arrayOf(RequestMethod.POST))
-    fun register(principal: Principal, @RequestParam("tokenResponse") response: String): String {
-        val username = principal.name
+    @RequestMapping(value = "/u2f/register/response", method = arrayOf(RequestMethod.POST))
+    fun registerToken(@RequestParam("username") username: String, @RequestParam("password") password: String, @RequestParam("tokenResponse") response: String): String {
         val registerResponse = RegisterResponse.fromJson(response)
         val registerRequestData = requestStorage.deleteRegistration(registerResponse.requestId)
         val registration = u2f.finishRegistration(registerRequestData, registerResponse)
-        devices.saveRegistrationForUsername(registration, username)
-        return "redirect:/u2f/authenticate"
+        log.info("response finished for $username")
+        userDetailsService.getUser(username).deviceRegistrations.add(registration)
+        return "redirect:/login"
     }
 
-    @RequestMapping("/u2f/authenticate")
-    fun authenticateForm(principal: Principal, model: MutableMap<String, Any>): String {
-        val username = principal.name
+    @RequestMapping("/u2f/authenticate/challenge", method = arrayOf(RequestMethod.POST))
+    fun authenticateForm(@RequestParam("username") username: String, @RequestParam("password") password: String, model: MutableMap<String, Any>): String {
+        val registrations = try {
+            getRegistrations(username)
+        } catch (e: Exception) {
+            throw BadCredentialsException("Username or Password not ok")
+        }
+
+
         // Generate a challenge for each U2F device that this user has
         // registered
-        val requestData = u2f.startSignature(SERVER_ADDRESS, getRegistrations(username))
+        val requestData = u2f.startSignature(SERVER_ADDRESS, registrations)
 
         // Store the challenges for future reference
         requestStorage.save(requestData)
 
         // Return an HTML page containing the challenges
+        model.put("username", username)
+        model.put("password", password)
         model.put("data", requestData.toJson())
-        return "u2f/authenticate"
+        return "/login"
     }
 
-    @RequestMapping(value = "/u2f/authenticate", method = arrayOf(RequestMethod.POST))
-    fun authenticate(@RequestParam tokenResponse: String, principal: Principal): String {
-        val response = SignResponse.fromJson(tokenResponse)
-        val username = principal.name
-
-        // Get the challenges that we stored when starting the authentication
-        val authenticateRequest = requestStorage.delete(response.requestId)
-        // Verify the that the given response is valid for one of the registered
-        // devices
-        u2f.finishSignature(authenticateRequest, response, getRegistrations(username))
-        return "u2f/success"
-    }
 
     private fun getRegistrations(username: String): List<DeviceRegistration> {
-        return devices.findRegistrationsByUsername(username)
+        return userDetailsService.getUser(username).deviceRegistrations
     }
 
 }

@@ -6,11 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.context.annotation.Bean
 
 @SpringBootApplication
-class U2fApplication {
-
-    @Bean
-    fun u2f() = U2F()
-}
+class U2fApplication
 
 fun main(args: Array<String>) {
     SpringApplication.run(U2fApplication::class.java, *args)

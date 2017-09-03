@@ -7,4 +7,4 @@ import javax.servlet.http.HttpServletRequest
  * @author Ralf Ulrich
  * 02.09.17
  */
-class U2fWebAuthenticationDetails(val context: HttpServletRequest , val signData: String? = context.getParameter("data")): WebAuthenticationDetails(context)
+class U2fWebAuthenticationDetails(val context: HttpServletRequest , val signData: String? = context.getParameter("tokenResponse")): WebAuthenticationDetails(context)
