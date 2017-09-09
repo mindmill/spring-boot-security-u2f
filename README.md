@@ -1,6 +1,6 @@
 # spring-boot-security-u2f
 
-This ist a demo showing U2F authentication together with Spring Security.
+This is a demo showing U2F authentication together with Spring Security.
 
 Usage: clone the project, cd into root and run ```mvn spring-boot:run```
 
