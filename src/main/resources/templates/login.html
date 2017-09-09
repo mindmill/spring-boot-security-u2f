@@ -89,7 +89,7 @@
                 </form>
                 <form th:if="${data != null}" id="tokenResponseForm" class="form-horizontal"
                       th:action="@{/login}" method="post">
-
+                    <h3>Please touch your U2F key to authenticate</h3>
                     <input type="hidden" name="username" th:value="${username}"/>
                     <input type="hidden" name="password" th:value="${password}"/>
                     <input type="hidden" name="tokenResponse" id="tokenResponse"/>

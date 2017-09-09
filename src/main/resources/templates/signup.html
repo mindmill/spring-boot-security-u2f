@@ -79,7 +79,7 @@
                 </form>
                 <form th:if="${data != null}" id="responseform" class="form-horizontal" role="form"
                       action="/u2f/register/response" method="post">
-
+                    <h3>Please touch your U2F key to register</h3>
                     <div id="signupalert" style="display:none" class="alert alert-danger">
                         <p>Error:</p>
                         <span></span>
